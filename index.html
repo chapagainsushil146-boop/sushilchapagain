@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-scene="void">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -2042,19 +2042,19 @@
         }
       }
       @media (prefers-reduced-motion: reduce) {
-        *,
-        *:before,
-        *:after {
+        html:not([data-reduce-motion="false"]) *,
+        html:not([data-reduce-motion="false"]) *:before,
+        html:not([data-reduce-motion="false"]) *:after {
           scroll-behavior: auto !important;
           animation-duration: 0.01ms !important;
           animation-iteration-count: 1 !important;
           transition-duration: 0.01ms !important;
         }
-        .reveal {
+        html:not([data-reduce-motion="false"]) .reveal {
           opacity: 1;
           transform: none;
         }
-        #intro {
+        html:not([data-reduce-motion="false"]) #intro {
           display: none;
         }
       }
@@ -2752,35 +2752,550 @@
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .intro-kicker,
-        .intro-name,
-        .intro-tag,
-        .intro-line,
-        .intro-glow,
-        #intro::before,
-        .hero:after,
-        .hero h1,
-        .hero .eyebrow,
-        .hero-intro,
-        .hero-buttons,
-        .hero-meta,
-        .portrait-frame::before,
-        .portrait-sculpture,
-        .page.active .page-title {
+        html:not([data-reduce-motion="false"]) .intro-kicker,
+        html:not([data-reduce-motion="false"]) .intro-name,
+        html:not([data-reduce-motion="false"]) .intro-tag,
+        html:not([data-reduce-motion="false"]) .intro-line,
+        html:not([data-reduce-motion="false"]) .intro-glow,
+        html:not([data-reduce-motion="false"]) #intro::before,
+        html:not([data-reduce-motion="false"]) .hero:after,
+        html:not([data-reduce-motion="false"]) .hero h1,
+        html:not([data-reduce-motion="false"]) .hero .eyebrow,
+        html:not([data-reduce-motion="false"]) .hero-intro,
+        html:not([data-reduce-motion="false"]) .hero-buttons,
+        html:not([data-reduce-motion="false"]) .hero-meta,
+        html:not([data-reduce-motion="false"]) .portrait-frame::before,
+        html:not([data-reduce-motion="false"]) .portrait-sculpture,
+        html:not([data-reduce-motion="false"]) .page.active .page-title {
           animation: none !important;
         }
-        .hero h1 {
+        html:not([data-reduce-motion="false"]) .hero h1 {
           opacity: 1;
           clip-path: none;
         }
-        .hero-atmosphere {
+        html:not([data-reduce-motion="false"]) .hero-atmosphere {
           opacity: 0.18;
+        }
+      }
+    </style>
+    <style id="scene-system">
+      /* One restrained world, three data-driven scenes. */
+      :root {
+        --bg: #05060f;
+        --bg-2: #0a0f24;
+        --ink: #e8ecf8;
+        --ink-dim: rgba(232, 236, 248, 0.68);
+        --accent: #2f6bff;
+        --accent-2: #4cc9f0;
+        --glow: 47, 107, 255;
+        --scene-line: rgba(255, 255, 255, 0.1);
+        --scene-glass: rgba(255, 255, 255, 0.055);
+        --scene-grain: 0.08;
+      }
+
+      html[data-scene="void"] {
+        --bg: #05060f;
+        --bg-2: #0a0f24;
+        --ink: #e8ecf8;
+        --ink-dim: rgba(232, 236, 248, 0.68);
+        --accent: #2f6bff;
+        --accent-2: #4cc9f0;
+        --glow: 47, 107, 255;
+        --scene-line: rgba(160, 184, 255, 0.16);
+        --scene-glass: rgba(140, 165, 255, 0.055);
+        --scene-grain: 0.075;
+      }
+
+      html[data-scene="crimson"] {
+        --bg: #08080b;
+        --bg-2: #14141b;
+        --ink: #f4f1ea;
+        --ink-dim: rgba(244, 241, 234, 0.68);
+        --accent: #e5232f;
+        --accent-2: #ff5a64;
+        --glow: 229, 35, 47;
+        --scene-line: rgba(255, 255, 255, 0.11);
+        --scene-glass: rgba(255, 255, 255, 0.045);
+        --scene-grain: 0.1;
+      }
+
+      html[data-scene="rose"] {
+        --bg: #250910;
+        --bg-2: #4b1725;
+        --ink: #fff4f0;
+        --ink-dim: rgba(255, 244, 240, 0.72);
+        --accent: #f2c9c4;
+        --accent-2: #d9908f;
+        --glow: 217, 144, 143;
+        --scene-line: rgba(255, 235, 230, 0.17);
+        --scene-glass: rgba(255, 238, 233, 0.065);
+        --scene-grain: 0.085;
+      }
+
+      html,
+      body {
+        background-color: var(--bg);
+        color: var(--ink);
+        transition:
+          background-color 0.9s var(--ease),
+          color 0.65s var(--ease);
+      }
+
+      body {
+        background-image: radial-gradient(
+          ellipse at 50% 0%,
+          rgba(var(--glow), 0.075),
+          transparent 56%
+        );
+      }
+
+      #world-canvas {
+        position: fixed;
+        z-index: 0;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        opacity: 0.72;
+      }
+
+      main,
+      footer {
+        position: relative;
+        z-index: 2;
+      }
+
+      .page {
+        position: relative;
+        z-index: 1;
+      }
+
+      header {
+        background: color-mix(in srgb, var(--bg) 86%, transparent);
+        border-bottom-color: var(--scene-line);
+        transition:
+          background-color 0.8s var(--ease),
+          border-color 0.8s var(--ease);
+      }
+
+      .quick-nav {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        padding: 5px;
+        border: 1px solid var(--scene-line);
+        border-radius: 999px;
+        background: var(--scene-glass);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.08),
+          0 12px 40px rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(18px) saturate(130%);
+        transform: translate(-50%, -50%);
+        transition:
+          background 0.6s,
+          border-color 0.6s;
+      }
+
+      .quick-nav a {
+        position: relative;
+        min-height: 38px;
+        min-width: 66px;
+        display: grid;
+        place-items: center;
+        padding: 0 14px;
+        border-radius: 999px;
+        color: var(--ink-dim);
+        font: 10px var(--mono);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        transition:
+          color 0.25s,
+          background 0.35s,
+          transform 0.25s;
+      }
+
+      .quick-nav a:hover,
+      .quick-nav a[aria-current="page"] {
+        color: var(--ink);
+        background: rgba(var(--glow), 0.19);
+      }
+
+      .quick-nav a:active {
+        transform: scale(0.96);
+      }
+
+      .menu-trigger {
+        border-color: var(--scene-line);
+        background: var(--scene-glass);
+        border-radius: 999px;
+        backdrop-filter: blur(14px);
+      }
+
+      .menu-trigger:hover {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--bg);
+      }
+
+      #menu-overlay {
+        background:
+          radial-gradient(
+            ellipse at 76% 18%,
+            rgba(var(--glow), 0.13),
+            transparent 34%
+          ),
+          color-mix(in srgb, var(--bg) 96%, #000);
+      }
+
+      .menu-links a:hover,
+      .menu-links a.current {
+        color: var(--accent-2);
+      }
+
+      .scroll-progress {
+        background: var(--scene-line);
+      }
+
+      .scroll-progress span {
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        box-shadow: 0 0 12px rgba(var(--glow), 0.36);
+      }
+
+      #scene-curtain {
+        --curtain-accent: #fff;
+        position: fixed;
+        z-index: 42;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0;
+        background: linear-gradient(
+          100deg,
+          transparent 8%,
+          color-mix(in srgb, var(--curtain-accent) 12%, transparent) 48%,
+          rgba(0, 0, 0, 0.2) 52%,
+          transparent 90%
+        );
+        transform: translateX(-110%);
+      }
+
+      #scene-curtain.wipe {
+        animation: sceneWipe 0.76s var(--ease) both;
+      }
+
+      @keyframes sceneWipe {
+        0% {
+          opacity: 0;
+          transform: translateX(-110%);
+        }
+        18% {
+          opacity: 1;
+        }
+        72% {
+          opacity: 0.85;
+        }
+        100% {
+          opacity: 0;
+          transform: translateX(110%);
+        }
+      }
+
+      .scene-hud {
+        position: fixed;
+        z-index: 32;
+        left: var(--gutter);
+        bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--ink-dim);
+        font: 9px var(--mono);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        pointer-events: none;
+        transition: color 0.6s;
+      }
+
+      .scene-hud__light {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 14px rgba(var(--glow), 0.72);
+        transition:
+          background 0.6s,
+          box-shadow 0.6s;
+      }
+
+      .scene-hud__divider {
+        color: var(--accent);
+      }
+
+      .hero {
+        background: transparent;
+      }
+
+      .hero h1 .second {
+        background-image: linear-gradient(
+          105deg,
+          #7581b5,
+          var(--accent-2) 38%,
+          #f4f5ff 68%,
+          #828eae
+        );
+        background-size: 200% 100%;
+      }
+
+      .hero-atmosphere {
+        mix-blend-mode: screen;
+      }
+
+      .hero-wordmark {
+        position: absolute;
+        z-index: 0;
+        left: -2.4vw;
+        top: 24%;
+        color: transparent;
+        -webkit-text-stroke: 1px rgba(232, 236, 248, 0.16);
+        font: 800 clamp(150px, 20vw, 330px)/0.76 var(--sans);
+        letter-spacing: -0.1em;
+        white-space: nowrap;
+        opacity: 0.35;
+        pointer-events: none;
+        user-select: none;
+        transform: translateX(-1.5%);
+        animation: wordmarkDrift 28s ease-in-out infinite alternate;
+      }
+
+      @keyframes wordmarkDrift {
+        to {
+          transform: translateX(1.5%) scale(1.025);
+        }
+      }
+
+      .hero-index,
+      .scroll-cue {
+        color: var(--ink-dim);
+      }
+
+      .page-head {
+        background-color: transparent;
+        border-bottom-color: var(--scene-line);
+      }
+
+      #page-about .page-head {
+        background-image:
+          radial-gradient(
+            ellipse at 78% 25%,
+            rgba(var(--glow), 0.12),
+            transparent 38%
+          ),
+          linear-gradient(
+            140deg,
+            rgba(var(--bg), 0.86),
+            rgba(var(--bg-2), 0.56) 70%,
+            rgba(var(--bg), 0.8)
+          );
+      }
+
+      #page-expertise .page-head {
+        background-image:
+          linear-gradient(rgba(var(--glow), 0.032) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(var(--glow), 0.032) 1px, transparent 1px),
+          radial-gradient(
+            ellipse at 80% 50%,
+            rgba(var(--glow), 0.16),
+            transparent 36%
+          ),
+          linear-gradient(120deg, rgba(var(--bg), 0.9), rgba(var(--bg-2), 0.58));
+      }
+
+      #page-projects .page-head {
+        background-image:
+          linear-gradient(
+            90deg,
+            rgba(var(--bg), 0.96) 0%,
+            rgba(var(--bg), 0.78) 46%,
+            rgba(var(--bg), 0.37)
+          ),
+          url("portfolio-cinematic-city.jpg");
+        background-size: cover;
+        background-position: 60% 42%;
+      }
+
+      #page-journey .page-head,
+      #page-resume .page-head {
+        background-image:
+          radial-gradient(
+            ellipse at 18% 78%,
+            rgba(var(--glow), 0.11),
+            transparent 35%
+          ),
+          linear-gradient(
+            110deg,
+            rgba(var(--bg), 0.88),
+            rgba(var(--bg-2), 0.62),
+            rgba(var(--bg), 0.86)
+          );
+      }
+
+      #page-contact .page-head {
+        background-image:
+          radial-gradient(
+            ellipse at 82% 80%,
+            rgba(var(--glow), 0.2),
+            transparent 36%
+          ),
+          linear-gradient(
+            135deg,
+            rgba(var(--bg), 0.84),
+            rgba(var(--bg-2), 0.64),
+            rgba(var(--bg), 0.8)
+          );
+      }
+
+      .page-head:after {
+        border-color: var(--scene-line);
+        box-shadow:
+          0 0 0 65px rgba(var(--glow), 0.018),
+          0 0 0 66px var(--scene-line);
+      }
+
+      .section-label,
+      .eyebrow {
+        color: var(--accent-2);
+      }
+
+      .tag,
+      .learning-status {
+        border-color: var(--scene-line);
+      }
+
+      .cta {
+        border-color: var(--scene-line);
+      }
+
+      .cta.light {
+        background: var(--accent);
+        color: var(--bg);
+        border-color: var(--accent);
+        box-shadow: 0 8px 34px rgba(var(--glow), 0.18);
+      }
+
+      .cta.light:hover {
+        background: var(--accent-2);
+        border-color: var(--accent-2);
+        color: var(--bg);
+      }
+
+      .text-link:hover {
+        border-color: var(--accent);
+      }
+
+      #page-projects .project-main:hover h2,
+      #page-projects .project-row.open .project-main h2 {
+        color: var(--accent-2);
+      }
+
+      #page-projects .project-main:focus-visible,
+      .quick-nav a:focus-visible,
+      .motion-toggle:focus-visible {
+        outline-color: var(--accent-2);
+      }
+
+      #page-contact .field input:focus,
+      #page-contact .field textarea:focus {
+        border-color: var(--accent);
+        box-shadow: 0 1px 0 var(--accent);
+      }
+
+      footer {
+        flex-wrap: wrap;
+        background: linear-gradient(
+          180deg,
+          transparent,
+          rgba(var(--glow), 0.035)
+        );
+        border-top: 1px solid var(--scene-line);
+        transition:
+          border-color 0.7s,
+          background 0.7s;
+      }
+
+      .motion-toggle {
+        min-height: 36px;
+        border: 1px solid var(--scene-line);
+        border-radius: 999px;
+        padding: 0 13px;
+        background: transparent;
+        color: var(--ink-dim);
+        cursor: pointer;
+        font: 9px var(--mono);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        transition:
+          color 0.2s,
+          border-color 0.2s,
+          background 0.2s;
+      }
+
+      .motion-toggle:hover {
+        color: var(--ink);
+        border-color: var(--accent);
+        background: rgba(var(--glow), 0.12);
+      }
+
+      html[data-reduce-motion="true"] *,
+      html[data-reduce-motion="true"] *::before,
+      html[data-reduce-motion="true"] *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+
+      @media (max-width: 920px) {
+        .quick-nav {
+          display: none;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .scene-hud {
+          left: 18px;
+          bottom: 14px;
+          font-size: 8px;
+        }
+        footer {
+          padding-bottom: 52px;
+        }
+        .motion-toggle {
+          min-height: 42px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html:not([data-reduce-motion="false"]) #scene-curtain {
+          display: none;
+        }
+        html:not([data-reduce-motion="false"]) #world-canvas {
+          opacity: 0.32;
         }
       }
     </style>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
+    <canvas id="world-canvas" aria-hidden="true"></canvas>
+    <div id="scene-curtain" aria-hidden="true"></div>
+    <div class="scene-hud" aria-live="polite" aria-atomic="true">
+      <span class="scene-hud__light" aria-hidden="true"></span>
+      <span id="scene-name">VOID</span>
+      <span class="scene-hud__divider" aria-hidden="true">/</span>
+      <span id="route-counter">01 / 07</span>
+    </div>
     <div
       id="intro"
       aria-label="Sushil Technology and AI introduction"
@@ -2805,7 +3320,14 @@
     <header>
       <a class="brand" href="#home" aria-label="Sushil, home"
         ><strong>SUSHIL.</strong><span>TECHNOLOGY &amp; AI</span></a
-      ><button
+      >
+      <nav class="quick-nav" aria-label="Quick navigation">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#projects">Work</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <button
         class="menu-trigger"
         type="button"
         aria-expanded="false"
@@ -2841,6 +3363,7 @@
         class="page active"
         id="page-home"
         data-page="home"
+        data-scene="void"
         aria-label="Home"
       >
         <div class="hero" data-atmosphere="hero">
@@ -2849,6 +3372,7 @@
             class="hero-atmosphere"
             aria-hidden="true"
           ></canvas>
+          <div class="hero-wordmark" aria-hidden="true">PORTFOLIO</div>
           <div class="hero-grid">
             <div class="hero-copy">
               <div class="eyebrow">
@@ -3001,7 +3525,7 @@
           >
         </div>
       </section>
-      <section class="page" id="page-about" data-page="about">
+      <section class="page" id="page-about" data-page="about" data-scene="void">
         <div class="page-head">
           <div class="eyebrow">02 — About</div>
           <h1 class="page-title">
@@ -3054,7 +3578,12 @@
           </p>
         </div>
       </section>
-      <section class="page" id="page-expertise" data-page="expertise">
+      <section
+        class="page"
+        id="page-expertise"
+        data-page="expertise"
+        data-scene="crimson"
+      >
         <div class="page-head">
           <div class="eyebrow">03 — Expertise</div>
           <h1 class="page-title">
@@ -3125,7 +3654,12 @@
           </p>
         </div>
       </section>
-      <section class="page" id="page-projects" data-page="projects">
+      <section
+        class="page"
+        id="page-projects"
+        data-page="projects"
+        data-scene="crimson"
+      >
         <div class="page-head">
           <div class="eyebrow">04 — Projects</div>
           <h1 class="page-title">
@@ -3159,7 +3693,12 @@
           </p>
         </div>
       </section>
-      <section class="page" id="page-journey" data-page="journey">
+      <section
+        class="page"
+        id="page-journey"
+        data-page="journey"
+        data-scene="crimson"
+      >
         <div class="page-head">
           <div class="eyebrow">05 — Journey</div>
           <h1 class="page-title">
@@ -3403,6 +3942,14 @@
       <span class="footer-brand">SUSHIL. &nbsp; TECHNOLOGY &amp; AI</span
       ><span>Building toward a better future.</span
       ><span>© <span id="year"></span> Sushil Chapagain</span>
+      <button
+        id="motion-toggle"
+        class="motion-toggle"
+        type="button"
+        aria-pressed="false"
+      >
+        Reduce motion: off
+      </button>
     </footer>
     <script>
       (() => {
@@ -3491,6 +4038,87 @@
               `<article class="project-row"><div id="project-control-${p.id}" class="project-main" role="button" tabindex="0" aria-expanded="false" aria-controls="project-detail-${p.id}" aria-label="Show details for ${p.name}"><span class="num">${p.num} /</span><h2>${p.name}</h2><span class="category">${p.category} · ${p.status}</span><span class="plus" aria-hidden="true">+</span></div><div class="project-detail" id="project-detail-${p.id}" role="region" aria-labelledby="project-control-${p.id}" aria-hidden="true"><div><div class="tag">${p.status}</div><p class="detail-desc">${p.description}</p><div class="project-notice">Idea only · Not a finished or deployed product</div></div><div class="detail-specs"><div class="detail-spec"><h4>Main objective</h4><p>${p.objective}</p></div><div class="detail-spec"><h4>Intended features</h4><p>${p.features}</p></div><div class="detail-spec"><h4>Design direction</h4><p>${p.direction}</p></div><div class="detail-spec"><h4>Future possibilities</h4><p>${p.future}</p></div></div></div></article>`,
           )
           .join("");
+        // Existing routes now steer one persistent three-scene art direction.
+        const pageScenes = {
+          home: "void",
+          about: "void",
+          expertise: "crimson",
+          projects: "crimson",
+          journey: "crimson",
+          resume: "crimson",
+          contact: "rose",
+        };
+        const sceneAccents = {
+          void: "#2f6bff",
+          crimson: "#e5232f",
+          rose: "#d9908f",
+        };
+        function applyScene(nextScene) {
+          const root = document.documentElement;
+          const previousScene = root.dataset.scene || "void";
+          if (previousScene === nextScene) return;
+          root.dataset.scene = nextScene;
+          const sceneName = document.querySelector("#scene-name");
+          if (sceneName) sceneName.textContent = nextScene.toUpperCase();
+          const curtain = document.querySelector("#scene-curtain");
+          if (curtain) {
+            curtain.style.setProperty(
+              "--curtain-accent",
+              sceneAccents[nextScene],
+            );
+            curtain.classList.remove("wipe");
+            void curtain.offsetWidth;
+            curtain.classList.add("wipe");
+            window.setTimeout(() => curtain.classList.remove("wipe"), 780);
+          }
+          window.dispatchEvent(
+            new CustomEvent("portfolio:scenechange", {
+              detail: { from: previousScene, to: nextScene },
+            }),
+          );
+        }
+
+        // Motion preference follows the OS by default; a saved visitor choice may override it.
+        const motionToggle = document.querySelector("#motion-toggle");
+        const systemMotion = matchMedia("(prefers-reduced-motion: reduce)");
+        let manualReduceMotion = null;
+        try {
+          const savedMotion = localStorage.getItem("sushil-reduce-motion");
+          if (savedMotion !== null) manualReduceMotion = savedMotion === "1";
+        } catch (_) {}
+        const motionIsReduced = () =>
+          manualReduceMotion === null
+            ? systemMotion.matches
+            : manualReduceMotion;
+        function syncMotionPreference() {
+          const reduced = motionIsReduced();
+          document.documentElement.dataset.reduceMotion = String(reduced);
+          if (motionToggle) {
+            motionToggle.setAttribute("aria-pressed", String(reduced));
+            motionToggle.textContent = `Reduce motion: ${reduced ? "on" : "off"}`;
+          }
+          window.dispatchEvent(
+            new CustomEvent("portfolio:motionchange", { detail: { reduced } }),
+          );
+        }
+        function setReducedMotion(value) {
+          manualReduceMotion = Boolean(value);
+          try {
+            localStorage.setItem(
+              "sushil-reduce-motion",
+              manualReduceMotion ? "1" : "0",
+            );
+          } catch (_) {}
+          syncMotionPreference();
+        }
+        syncMotionPreference();
+        systemMotion.addEventListener?.("change", () => {
+          if (manualReduceMotion === null) syncMotionPreference();
+        });
+        motionToggle?.addEventListener("click", () =>
+          setReducedMotion(!motionIsReduced()),
+        );
+
         // Hash routes preserve browser back/forward and allow direct links.
         const pages = [...document.querySelectorAll(".page")],
           overlay = document.querySelector("#menu-overlay"),
@@ -3511,12 +4139,19 @@
             p.classList.toggle("active", on);
             p.setAttribute("aria-hidden", String(!on));
           });
-          document.querySelectorAll(".menu-links a").forEach((a) => {
-            const active = a.getAttribute("href") === "#" + id;
-            a.classList.toggle("current", active);
-            if (active) a.setAttribute("aria-current", "page");
-            else a.removeAttribute("aria-current");
-          });
+          applyScene(pageScenes[id] || "void");
+          const routeCounter = document.querySelector("#route-counter");
+          const currentRouteIndex = Object.keys(pageScenes).indexOf(id) + 1;
+          if (routeCounter)
+            routeCounter.textContent = `${String(currentRouteIndex).padStart(2, "0")} / 07`;
+          document
+            .querySelectorAll(".menu-links a, .quick-nav a")
+            .forEach((a) => {
+              const active = a.getAttribute("href") === "#" + id;
+              a.classList.toggle("current", active);
+              if (active) a.setAttribute("aria-current", "page");
+              else a.removeAttribute("aria-current");
+            });
           const titles = {
               home: "Sushil Chapagain — A Mind in Motion | Technology & AI",
               about: "About — Sushil Chapagain | Technology & AI",
@@ -3554,9 +4189,10 @@
           }
           window.scrollTo({
             top: 0,
-            behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
-              ? "auto"
-              : "smooth",
+            behavior:
+              document.documentElement.dataset.reduceMotion === "true"
+                ? "auto"
+                : "smooth",
           });
           setTimeout(observeReveals, 50);
         }
@@ -3581,6 +4217,14 @@
           overlay.classList.contains("open") ? closeMenu() : openMenu(),
         );
         document.addEventListener("keydown", (e) => {
+          if (
+            !intro.classList.contains("done") &&
+            ["Escape", "Enter", " "].includes(e.key)
+          ) {
+            e.preventDefault();
+            dismissIntro();
+            return;
+          }
           if (e.key === "Escape") closeMenu();
           if (overlay.classList.contains("open") && e.key === "Tab") {
             const items = [...overlay.querySelectorAll("a")];
@@ -3595,6 +4239,221 @@
         });
         window.addEventListener("hashchange", route);
         route();
+        // Persistent, low-density three-scene world: native Canvas 2D, capped to 30fps.
+        function initWorldCanvas() {
+          const canvas = document.querySelector("#world-canvas");
+          const ctx = canvas?.getContext("2d", { alpha: true });
+          if (!canvas || !ctx) return;
+          const shouldReduce = () =>
+            document.documentElement.dataset.reduceMotion === "true";
+          let width = 1;
+          let height = 1;
+          let dpr = 1;
+          let motes = [];
+          let frame = 0;
+          let active = false;
+          let lastFrame = 0;
+          let lastStreak = 0;
+          let streak = null;
+          let pointer = { x: -1000, y: -1000 };
+
+          function resize() {
+            width = Math.max(1, window.innerWidth);
+            height = Math.max(1, window.innerHeight);
+            dpr = Math.min(1.25, window.devicePixelRatio || 1);
+            canvas.width = Math.round(width * dpr);
+            canvas.height = Math.round(height * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            const count = Math.min(
+              112,
+              Math.max(36, Math.round((width * height) / 14500)),
+            );
+            motes = Array.from({ length: count }, () => ({
+              x: Math.random() * width,
+              y: Math.random() * height,
+              r: 0.35 + Math.random() * 1.05,
+              v: 0.035 + Math.random() * 0.13,
+              phase: Math.random() * Math.PI * 2,
+            }));
+            draw(0, true);
+          }
+
+          function sceneBackdrop(scene) {
+            const palette = {
+              void: ["rgba(47,107,255,0.08)", "rgba(76,201,240,0.025)"],
+              crimson: ["rgba(229,35,47,0.065)", "rgba(255,90,100,0.018)"],
+              rose: ["rgba(217,144,143,0.11)", "rgba(242,201,196,0.035)"],
+            }[scene] || ["rgba(47,107,255,0.08)", "rgba(76,201,240,0.025)"];
+            const gradient = ctx.createRadialGradient(
+              width * 0.72,
+              height * 0.31,
+              0,
+              width * 0.72,
+              height * 0.31,
+              Math.max(width, height) * 0.76,
+            );
+            gradient.addColorStop(0, palette[0]);
+            gradient.addColorStop(0.5, palette[1]);
+            gradient.addColorStop(1, "rgba(0,0,0,0)");
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+            const pointerGlow = ctx.createRadialGradient(
+              pointer.x,
+              pointer.y,
+              0,
+              pointer.x,
+              pointer.y,
+              Math.min(width, height) * 0.36,
+            );
+            pointerGlow.addColorStop(
+              0,
+              scene === "rose"
+                ? "rgba(242,201,196,0.045)"
+                : scene === "crimson"
+                  ? "rgba(229,35,47,0.04)"
+                  : "rgba(76,201,240,0.04)",
+            );
+            pointerGlow.addColorStop(1, "rgba(0,0,0,0)");
+            ctx.fillStyle = pointerGlow;
+            ctx.fillRect(0, 0, width, height);
+          }
+
+          function draw(time, staticFrame = false) {
+            if (!staticFrame && time - lastFrame < 32) {
+              if (active) frame = requestAnimationFrame(draw);
+              return;
+            }
+            lastFrame = time;
+            const scene = document.documentElement.dataset.scene || "void";
+            ctx.clearRect(0, 0, width, height);
+            sceneBackdrop(scene);
+
+            if (scene === "crimson") {
+              ctx.globalAlpha = 0.075;
+              ctx.strokeStyle = "#e5232f";
+              ctx.lineWidth = 1;
+              for (let i = 0; i < 6; i++) {
+                const y = height * (0.16 + i * 0.135);
+                ctx.beginPath();
+                ctx.moveTo(width * 0.72, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+              }
+              ctx.globalAlpha = 1;
+            }
+
+            for (const mote of motes) {
+              if (!staticFrame && !shouldReduce()) {
+                mote.y -= mote.v * 0.75;
+                if (mote.y < -2) {
+                  mote.y = height + 2;
+                  mote.x = Math.random() * width;
+                }
+              }
+              const twinkle = shouldReduce()
+                ? 0.68
+                : 0.55 + Math.sin(time * 0.0007 + mote.phase) * 0.25;
+              ctx.globalAlpha = twinkle * (scene === "rose" ? 0.36 : 0.54);
+              ctx.fillStyle =
+                scene === "crimson"
+                  ? "#f0b6b6"
+                  : scene === "rose"
+                    ? "#ffe4df"
+                    : "#d8e3ff";
+              ctx.beginPath();
+              ctx.arc(mote.x, mote.y, mote.r, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+
+            const interval = scene === "crimson" ? 3800 : 6500;
+            if (!shouldReduce() && time - lastStreak > interval && !streak) {
+              lastStreak = time;
+              streak = {
+                x: width * (0.64 + Math.random() * 0.3),
+                y: Math.random() * height * 0.5,
+                born: time,
+              };
+            }
+            if (streak && !shouldReduce()) {
+              const elapsed = time - streak.born;
+              if (elapsed > 900) streak = null;
+              else {
+                const progress = elapsed / 900;
+                const trail = ctx.createLinearGradient(
+                  streak.x - progress * 170,
+                  streak.y + progress * 90,
+                  streak.x - progress * 35,
+                  streak.y + progress * 19,
+                );
+                trail.addColorStop(0, "rgba(255,255,255,0)");
+                trail.addColorStop(
+                  1,
+                  scene === "crimson"
+                    ? "rgba(229,35,47,0.72)"
+                    : "rgba(220,232,255,0.68)",
+                );
+                ctx.strokeStyle = trail;
+                ctx.lineWidth = scene === "crimson" ? 1 : 1.2;
+                ctx.beginPath();
+                ctx.moveTo(streak.x - progress * 170, streak.y + progress * 90);
+                ctx.lineTo(streak.x - progress * 35, streak.y + progress * 19);
+                ctx.stroke();
+              }
+            }
+            if (
+              active &&
+              !shouldReduce() &&
+              document.visibilityState === "visible"
+            )
+              frame = requestAnimationFrame(draw);
+          }
+
+          function start() {
+            if (active || shouldReduce()) {
+              if (shouldReduce()) draw(0, true);
+              return;
+            }
+            active = true;
+            lastFrame = 0;
+            frame = requestAnimationFrame(draw);
+          }
+          function stop() {
+            active = false;
+            cancelAnimationFrame(frame);
+          }
+          resize();
+          const observer =
+            "IntersectionObserver" in window
+              ? new IntersectionObserver(
+                  ([entry]) => (entry.isIntersecting ? start() : stop()),
+                  { threshold: 0 },
+                )
+              : null;
+          if (observer) observer.observe(document.body);
+          else start();
+          window.addEventListener("resize", resize, { passive: true });
+          window.addEventListener(
+            "pointermove",
+            (event) => {
+              pointer = { x: event.clientX, y: event.clientY };
+            },
+            { passive: true },
+          );
+          document.addEventListener("visibilitychange", () =>
+            document.visibilityState === "hidden" ? stop() : start(),
+          );
+          window.addEventListener("portfolio:scenechange", () => {
+            streak = null;
+            draw(performance.now(), true);
+          });
+          window.addEventListener("portfolio:motionchange", (event) =>
+            event.detail.reduced ? (stop(), draw(0, true)) : start(),
+          );
+          // System preference changes are normalized by the shared motion controller above.
+        }
+        initWorldCanvas();
+
         // Scroll progress is updated once per animation frame and is purely decorative.
         const progressBar = document.querySelector("#progress-bar");
         let progressQueued = false;
@@ -3673,7 +4532,7 @@
         try {
           seen = sessionStorage.getItem("sushil-intro-seen") === "1";
         } catch (_) {}
-        if (seen || matchMedia("(prefers-reduced-motion: reduce)").matches)
+        if (seen || document.documentElement.dataset.reduceMotion === "true")
           dismissIntro();
         else setTimeout(dismissIntro, 3100);
         document
@@ -3734,7 +4593,8 @@
           const context = canvas.getContext("2d", { alpha: true });
           if (!context) return; // The cinematic city image remains the static fallback.
 
-          const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+          const shouldReduce = () =>
+            document.documentElement.dataset.reduceMotion === "true";
           const finePointer = matchMedia("(hover: hover) and (pointer: fine)");
           let width = 0;
           let height = 0;
@@ -3770,7 +4630,7 @@
             canvas.height = Math.round(height * pixelRatio);
             context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
             seedParticles();
-            if (reduceMotion.matches) draw(0, true);
+            if (shouldReduce()) draw(0, true);
           }
 
           function draw(time, staticFrame = false) {
@@ -3792,7 +4652,7 @@
             const delta = previousTime ? Math.min(40, time - previousTime) : 16;
             previousTime = time;
             for (const particle of particles) {
-              if (!staticFrame && !reduceMotion.matches) {
+              if (!staticFrame && !shouldReduce()) {
                 particle.y -= particle.speed * delta * 0.055;
                 particle.x += particle.drift * delta * 0.035;
                 if (particle.y < -3) {
@@ -3819,7 +4679,7 @@
             context.globalAlpha = 1;
             if (
               active &&
-              !reduceMotion.matches &&
+              !shouldReduce() &&
               document.visibilityState === "visible"
             ) {
               frame = requestAnimationFrame(draw);
@@ -3827,8 +4687,8 @@
           }
 
           function start() {
-            if (active || reduceMotion.matches) {
-              if (reduceMotion.matches) draw(0, true);
+            if (active || shouldReduce()) {
+              if (shouldReduce()) draw(0, true);
               return;
             }
             active = true;
@@ -3858,7 +4718,7 @@
             else if (hero.getBoundingClientRect().bottom > 0) start();
           });
 
-          if (finePointer.matches && !reduceMotion.matches) {
+          if (finePointer.matches && !shouldReduce()) {
             hero.addEventListener("pointermove", (event) => {
               const bounds = hero.getBoundingClientRect();
               const x = (event.clientX - bounds.left) / bounds.width - 0.5;
@@ -3876,8 +4736,8 @@
             });
           }
 
-          reduceMotion.addEventListener?.("change", () => {
-            if (reduceMotion.matches) {
+          window.addEventListener("portfolio:motionchange", (event) => {
+            if (event.detail.reduced) {
               stop();
               draw(0, true);
             } else if (hero.getBoundingClientRect().bottom > 0) {
@@ -3890,5 +4750,5 @@
         document.querySelector("#year").textContent = new Date().getFullYear();
       })();
     </script>
-  <script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5ef3063d962a62d',t:'MTc5NTQyNjU4MQ=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5ef3063d962a62d',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+  <script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a5ef54e40a694f3c',t:'MTc5NTQyODA3Ng=='};var l=window.parent.location,o;try{o=new URL(l.origin).origin}catch(e){try{o=new URL(new URL(l.href).origin).origin}catch(e){o=''}}var u='/cdn-cgi/challenge-platform/scripts/jsd/main.js?ray=a5ef54e40a694f3c',a=document.createElement('script');a.src=o?new URL(u,o).href:u;document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
